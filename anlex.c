@@ -43,13 +43,12 @@ void getToken(){
 
 	while((c=fgetc(archivo))!=EOF){	
 		if (c==' ' || c=='\t'){
-			//fprintf(output,"%c", c);	
-			printf("%c", c);
+			//fprintf(output,"%c", c);
+			//printf("%c", c);	
 		}else if(c=='\n'){
 			//fprintf(output, "%c", c);
-			printf("%c", c);
+			//printf("%c", c);	
 			numLinea++;
-			printf("HOLA");
 		}else if (tolower(c)=='t' || tolower(c)=='f' || tolower(c)=='n'){
 			//es un boolean o null
 			i=0;
@@ -217,7 +216,8 @@ void getToken(){
 			t.compLex=']';
 			t.pe=buscar("]");
 			break;
-		}else if (c=='\"'){ 
+		}
+		else if (c=='\"'){ 
 			//un caracter o una cadena de caracteres
 			i=0;
 			lexema[i]=c;
@@ -282,12 +282,10 @@ void getToken(){
 			sprintf(msg,"%c no esperado",c);
 			error(msg);
 		}
-		if (c==EOF){
-			t.compLex=EOF;
-			t.pe=NULL;
-			
-		}
-	}
+	}if (c==EOF){
+		t.compLex=EOF;
+		t.pe=NULL;
+	}	
 }
 /*
 int main(int argc,char* args[]){
@@ -295,7 +293,7 @@ int main(int argc,char* args[]){
 	initTabla();
 	initTablaSimbolos();
 
-	output = fopen("salida.txt", "w");
+	//output = fopen("salida.txt", "w");
 	
 	if(argc > 1){
 		if (!(archivo=fopen(args[1],"rt"))){
@@ -306,11 +304,13 @@ int main(int argc,char* args[]){
 		while (t.compLex!=EOF){
 			getToken();
 			if (t.compLex!=EOF){
-				fprintf(output,"%s ", t.pe->componente);
+				//fprintf(output,"%s ", t.pe->componente);
+				printf("%d ", t.pe->compLex);
+				printf("%d/2 ", t.compLex);
 			}
 			
 		}
-		fclose(output);
+		//fclose(output);
 		fclose(archivo);
 	}else{
 		printf("Debe pasar como parametro el path al archivo fuente.\n");

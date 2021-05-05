@@ -28,17 +28,24 @@ void attribute_value(int[]);
 
 /***/
 void match(int expectedToken){
-    if(t.compLex == expectedToken){
+    if(t.pe->compLex == expectedToken){
         getToken();
-    }
+
+    }/*else{
+        error("error en match");
+    }*/
   
+}
+
+void error(char mensaje[]){
+    printf("%s", mensaje);
 }
 
 void error_sint(int sincronizacion [])
 {
     accept=0;
-   	//printf("\nError sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.componente);
-	int i = 0;
+   	printf("\nError sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
+	/*int i = 0;
     while(t.compLex != sincronizacion[i] && t.compLex != EOF){   
         if (sincronizacion[i] == '\0'){
             getToken();
@@ -47,17 +54,17 @@ void error_sint(int sincronizacion [])
         i++;
     }
     getToken();
-    return;    	   
+    return;*/	   
 }
 
 void check_input(int primero[], int siguiente[])
 {
     int syncset[]={CANT_COMP_LEX};
     int i=0;
-    if(t.compLex == EOF) return;    
+    if(t.compLex == EOF) return;  
     while(primero[i] != '\0') 
     {
-        if(t.compLex == primero[i])
+        if(t.pe->compLex == primero[i])
         {
             return;
         }
@@ -80,8 +87,8 @@ void check_input(int primero[], int siguiente[])
  
 void json(){
     int primero[] = {'{','[','\0'};
-    //int siguiente[] = {EOF, '\0'}; //PROBAR
-    int siguiente[] = {',','}','}', '\0'}; //PROBAR
+    int siguiente[] = {EOF, '\0'}; //PROBAR
+    //int siguiente[] = {',',']','}', '\0'}; //PROBAR
     element(siguiente);
 }
 
@@ -91,11 +98,13 @@ void element(int syncset[]){
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
 
-    if(t.compLex == '{'){
+    if(t.pe->compLex == '{'){
         object(siguiente);
     }
-    else if(t.compLex == '['){
+    else if(t.pe->compLex == '['){
         array(siguiente);
+    }else{
+        error("error en element");
     }
     check_input(siguiente,primero);
 }
@@ -107,7 +116,7 @@ void array(int syncset[]){
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
    
-    if(t.compLex == '['){
+    if(t.pe->compLex == '['){
         match('[');
         arrayB(siguiente);
     }
@@ -118,13 +127,13 @@ void array(int syncset[]){
 void arrayB(int syncset[]){
    
     int primero[]={'{','[',']','\0'};
-    int siguiente[] = {'[',EOF,',',']','}', '\0'};
+    int siguiente[] = {'[',',',']','}', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == '{' || t.compLex == '['){
+    if(t.pe->compLex == '{' || t.pe->compLex == '['){
         element_list(siguiente);
         match(']');
     }
-    else if(t.compLex == ']'){
+    else if(t.pe->compLex == ']'){
         match(']');
     }
     check_input(siguiente,primero);
@@ -137,7 +146,7 @@ void element_list(int syncset[]){
     int primero[]={'{','[','\0'};
     int siguiente[] = {']', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == '{' || t.compLex == '['){
+    if(t.pe->compLex == '{' || t.pe->compLex == '['){
         element(siguiente);
         element_listB(siguiente);
     }
@@ -148,13 +157,13 @@ void element_list(int syncset[]){
 /*element-list' ->  ,element element-list' | ε*/
 void element_listB(int syncset[]){
    
-    if(t.compLex == '}'){ 
+    if(t.pe->compLex == ']'){ 
         return;
     }
     int primero[]={',','\0'};
     int siguiente[] = {']', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == ','){
+    if(t.pe->compLex == ','){
         match(',');
         element(siguiente);
         element_listB(siguiente);
@@ -170,7 +179,7 @@ void object(int syncset[]){
     int primero[]={'{','\0'};
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == '{'){
+    if(t.pe->compLex == '{'){
         match('{');
         objectB(siguiente);
     }
@@ -183,12 +192,15 @@ void objectB(int syncset[]){
   
     int primero[]={STRING,'}','\0'};
     int siguiente[] = {'{',',',']','}','\0'};
+    //int siguiente[] = {STRING,',',']','}','\0'};
     check_input(primero,syncset);
-    if(t.compLex == STRING){
+    
+    if(t.pe->compLex == STRING){
+        
         attributes_list(siguiente);
         match('}');
     }
-    else if(t.compLex == '}'){
+    else if(t.pe->compLex == '}'){
         match('}');
     }
     check_input(siguiente,primero);
@@ -201,7 +213,7 @@ void attributes_list(int syncset[]){
     int siguiente[] = {'}', '\0'};
     check_input(primero,syncset);
 
-    if(t.compLex == STRING){
+    if(t.pe->compLex == STRING){
         attribute(siguiente);
         attributes_listB(siguiente);
     }
@@ -211,13 +223,13 @@ void attributes_list(int syncset[]){
 /*   attributes-list' -> ,attribute attributes-list' | ε*/
 void attributes_listB(int syncset[]){
  
-    if (t.compLex == '}'){
+    if (t.pe->compLex == '}'){
         return;
     }
     int primero[]={',','\0'};
     int siguiente[] = {'}', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == ','){
+    if(t.pe->compLex == ','){
         match(',');
         attribute(siguiente);
         attributes_listB(siguiente);
@@ -232,7 +244,7 @@ void attribute(int syncset[]){
     int primero[]={STRING,'\0'};
     int siguiente[] = {',','}', '\0'};
     check_input(primero,siguiente);
-    if(t.compLex == STRING){
+    if(t.pe->compLex == STRING){
         attribute_name(siguiente);
         match(':');
         attribute_value(siguiente);
@@ -246,7 +258,7 @@ void attribute_name(int syncset[]){
     int primero[]={STRING,'\0'};
     int siguiente[] = {':', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == STRING){
+    if(t.pe->compLex == STRING){
         match(STRING);
     }
     check_input(siguiente,primero);
@@ -258,22 +270,22 @@ void attribute_value(int syncset[]){
     int primero[]={'{','[',STRING, NUM, TRUE, FALSE, A_NULL,'\0'};
     int siguiente[] = {',','}', '\0'};
     check_input(primero,syncset);
-    if(t.compLex == '{' || t.compLex == '['){
+    if(t.pe->compLex == '{' || t.pe->compLex == '['){
         element(siguiente);
     }
-    else if(t.compLex == STRING){
+    else if(t.pe->compLex == STRING){
         match(STRING);
     }
-    else if(t.compLex == NUM){
+    else if(t.pe->compLex == NUM){
         match(NUM);
     }
-    else if(t.compLex == TRUE){
+    else if(t.pe->compLex == TRUE){
         match(TRUE);
     }
-    else if(t.compLex == FALSE){
+    else if(t.pe->compLex == FALSE){
         match(FALSE);
     }
-    else if(t.compLex == A_NULL){
+    else if(t.pe->compLex == A_NULL){
         match(A_NULL);
     }
     check_input(siguiente,primero);
@@ -296,9 +308,8 @@ int main (int argc,char* args[]){
             exit(1);
         }
         getToken();
-        
         json();
-        if(accept) printf("Correctamente sintactico \n");
+        if(accept) printf("Sintacticamente correcto \n");
         fclose(archivo);
     }else{
         printf("Debe pasar como parametro el path al archivo fuente.\n");
