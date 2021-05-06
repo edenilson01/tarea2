@@ -30,6 +30,7 @@ int numLinea = 1;			// Numero de Linea
 
 void error(const char* mensaje){
 	//fprintf(output, "Linea %d: Error. %s.\n",numLinea,mensaje);	
+	//printf("Error sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
 	printf("Linea %d: Error. %s.\n",numLinea,mensaje);	
 }
 
@@ -45,6 +46,8 @@ void getToken(){
 		if (c==' ' || c=='\t'){
 			//fprintf(output,"%c", c);
 			//printf("%c", c);	
+			continue;
+
 		}else if(c=='\n'){
 			//fprintf(output, "%c", c);
 			//printf("%c", c);	
@@ -260,6 +263,7 @@ void getToken(){
 				t.pe=NULL;
 			}else{
 				t.pe=buscar(lexema);
+				t.compLex=STRING;
 				if (t.pe->compLex==-1){
 					strcpy(e.lexema,lexema);
 					e.compLex=STRING;

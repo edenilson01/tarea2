@@ -3,49 +3,38 @@
  *	Curso: Compiladores y Lenguajes de Bajo de Nivel
  *
  *	Descripcion: 
- *     Implementacion de un analizador sintactico descendente recursivo LL1 para el lenguaje JSON simplificado.	
- */
+ *     Implementacion de un analizador sintactico descendente recursivo o LL(1) para el lenguaje JSON simplificado.	
+ *     Estrategia de manejo de errores Panic Mode con sincronizacion
+*/
 
 
 #include "anlex.c"
-#define CANT_COMP_LEX 10
-/**Prototipos de funciones**/
-int accept=1;
-
-
+//Prototipos de funciones
 void element(int[]);
 void array(int[]);
-void arrayB(int[]);
+void arrayA(int[]);
 void element_list(int[]);
-void element_listB(int[]);
+void element_listA(int[]);
 void object(int[]);
-void objectB(int[]);
+void objectA(int[]);
 void attributes_list(int[]);
-void attributes_listB(int[]);
+void attributes_listA(int[]);
 void attribute(int[]);
 void attribute_name(int[]);
 void attribute_value(int[]);
+int accept=1;
 
-/***/
+
 void match(int expectedToken){
-    if(t.pe->compLex == expectedToken){
+    if(t.compLex == expectedToken){
         getToken();
-
-    }/*else{
-        error("error en match");
-    }*/
-  
+    } 
 }
 
-void error(char mensaje[]){
-    printf("%s", mensaje);
-}
-
-void error_sint(int sincronizacion [])
-{
+void error_sint(int sincronizacion []){
     accept=0;
-   	printf("\nError sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
-	/*int i = 0;
+   	printf("Error sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
+	int i = 0;
     while(t.compLex != sincronizacion[i] && t.compLex != EOF){   
         if (sincronizacion[i] == '\0'){
             getToken();
@@ -53,19 +42,15 @@ void error_sint(int sincronizacion [])
         }
         i++;
     }
-    getToken();
-    return;*/	   
+    getToken();   	   
 }
 
-void check_input(int primero[], int siguiente[])
-{
-    int syncset[]={CANT_COMP_LEX};
+void check_input(int primero[], int siguiente[]){
+    int syncset[2000];
     int i=0;
-    if(t.compLex == EOF) return;  
-    while(primero[i] != '\0') 
-    {
-        if(t.pe->compLex == primero[i])
-        {
+    if(t.compLex == EOF) return;    
+    while(primero[i] != '\0'){
+        if(t.compLex == primero[i]){
             return;
         }
         i++;
@@ -82,169 +67,153 @@ void check_input(int primero[], int siguiente[])
         j++;
     }
     error_sint(syncset);
-
 }
- 
+
+//json -> element EOF 
 void json(){
     int primero[] = {'{','[','\0'};
-    int siguiente[] = {EOF, '\0'}; //PROBAR
-    //int siguiente[] = {',',']','}', '\0'}; //PROBAR
+    int siguiente[] = {EOF, '\0'};
     element(siguiente);
 }
 
-void element(int syncset[]){
 
+//element -> object | array
+void element(int syncset[]){
     int primero[] = {'{','[','\0'};
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
-
-    if(t.pe->compLex == '{'){
+    if(t.compLex == '{'){
         object(siguiente);
     }
-    else if(t.pe->compLex == '['){
+    else if(t.compLex == '['){
         array(siguiente);
-    }else{
-        error("error en element");
     }
     check_input(siguiente,primero);
 }
 
 
-/*array -> [ arrayB*/
+//array -> [ arrayA
 void array(int syncset[]){
     int primero[] = {'[','\0'};
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
-   
-    if(t.pe->compLex == '['){
+    if(t.compLex == '['){
         match('[');
-        arrayB(siguiente);
+        arrayA(siguiente);
     }
     check_input(siguiente,primero);
 }
 
-/*array' -> element-list ] | ]*/
-void arrayB(int syncset[]){
-   
+
+//array' -> element-list ] | ]
+void arrayA(int syncset[]){
     int primero[]={'{','[',']','\0'};
     int siguiente[] = {'[',',',']','}', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == '{' || t.pe->compLex == '['){
+    if(t.compLex == '{' || t.compLex == '['){
         element_list(siguiente);
         match(']');
     }
-    else if(t.pe->compLex == ']'){
+    else if(t.compLex == ']'){
         match(']');
     }
     check_input(siguiente,primero);
-
 }
 
-/*element-list -> element element-list'*/
+//element-list -> element element-listA
 void element_list(int syncset[]){
-    
     int primero[]={'{','[','\0'};
     int siguiente[] = {']', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == '{' || t.pe->compLex == '['){
+    if(t.compLex == '{' || t.compLex == '['){
         element(siguiente);
-        element_listB(siguiente);
+        element_listA(siguiente);
     }
     check_input(siguiente,primero);
 }
 
 
-/*element-list' ->  ,element element-list' | ε*/
-void element_listB(int syncset[]){
-   
-    if(t.pe->compLex == ']'){ 
+//element-list' ->  ,element element-list' | ε
+void element_listA(int syncset[]){
+    if(t.compLex == ']'){ 
         return;
     }
     int primero[]={',','\0'};
     int siguiente[] = {']', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == ','){
+    if(t.compLex == ','){
         match(',');
         element(siguiente);
-        element_listB(siguiente);
+        element_listA(siguiente);
     }
-    
     check_input(siguiente,primero);
 }
 
 
-/*  object -> { object'*/
+//object -> { objectA
 void object(int syncset[]){
- 
     int primero[]={'{','\0'};
     int siguiente[] = {',',']','}', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == '{'){
+    if(t.compLex == '{'){
         match('{');
-        objectB(siguiente);
+        objectA(siguiente);
     }
     check_input(siguiente,primero);
-
 }
 
-/*   object' -> attributes-list} | }*/
-void objectB(int syncset[]){
-  
+
+//object' -> attributes-list} | }
+void objectA(int syncset[]){
     int primero[]={STRING,'}','\0'};
     int siguiente[] = {'{',',',']','}','\0'};
-    //int siguiente[] = {STRING,',',']','}','\0'};
     check_input(primero,syncset);
-    
-    if(t.pe->compLex == STRING){
-        
+    if(t.compLex == STRING){
         attributes_list(siguiente);
         match('}');
-    }
-    else if(t.pe->compLex == '}'){
+    }else if(t.compLex == '}'){
         match('}');
     }
     check_input(siguiente,primero);
 }
 
-/*   attributes-list -> attribute attributes-list'*/
-void attributes_list(int syncset[]){
 
+//attributes-list -> attribute attributes-listA
+void attributes_list(int syncset[]){
     int primero[]={STRING,'\0'};
     int siguiente[] = {'}', '\0'};
     check_input(primero,syncset);
-
-    if(t.pe->compLex == STRING){
+    if(t.compLex == STRING){
         attribute(siguiente);
-        attributes_listB(siguiente);
+        attributes_listA(siguiente);
     }
     check_input(siguiente,primero);
 }
 
-/*   attributes-list' -> ,attribute attributes-list' | ε*/
-void attributes_listB(int syncset[]){
- 
-    if (t.pe->compLex == '}'){
+
+//attributes-list' -> ,attribute attributes-listA | ε
+void attributes_listA(int syncset[]){
+    if (t.compLex == '}'){
         return;
     }
     int primero[]={',','\0'};
     int siguiente[] = {'}', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == ','){
+    if(t.compLex == ','){
         match(',');
         attribute(siguiente);
-        attributes_listB(siguiente);
+        attributes_listA(siguiente);
     }
-    
     check_input(siguiente,primero);
 }
 
-/*   attribute -> attribute-name : attribute-value*/
-void attribute(int syncset[]){
 
+//attribute -> attribute-name : attribute-value
+void attribute(int syncset[]){
     int primero[]={STRING,'\0'};
     int siguiente[] = {',','}', '\0'};
     check_input(primero,siguiente);
-    if(t.pe->compLex == STRING){
+    if(t.compLex == STRING){
         attribute_name(siguiente);
         match(':');
         attribute_value(siguiente);
@@ -252,69 +221,62 @@ void attribute(int syncset[]){
     check_input(siguiente,primero);
 }
 
-/*   attribute-name -> string*/
+//attribute-name -> string
 void attribute_name(int syncset[]){
-   
     int primero[]={STRING,'\0'};
     int siguiente[] = {':', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == STRING){
+    if(t.compLex == STRING){
         match(STRING);
     }
     check_input(siguiente,primero);
 }
 
-/*attribute-value -> element | string | number | true | false | null*/
-void attribute_value(int syncset[]){
 
+//attribute-value -> element | STRING | NUMBER | TRUE | FALSE | NULL
+void attribute_value(int syncset[]){
     int primero[]={'{','[',STRING, NUM, TRUE, FALSE, A_NULL,'\0'};
     int siguiente[] = {',','}', '\0'};
     check_input(primero,syncset);
-    if(t.pe->compLex == '{' || t.pe->compLex == '['){
+    if(t.compLex == '{' || t.compLex == '['){
         element(siguiente);
     }
-    else if(t.pe->compLex == STRING){
+    else if(t.compLex == STRING){
         match(STRING);
     }
-    else if(t.pe->compLex == NUM){
+    else if(t.compLex == NUM){
         match(NUM);
     }
-    else if(t.pe->compLex == TRUE){
+    else if(t.compLex == TRUE){
         match(TRUE);
     }
-    else if(t.pe->compLex == FALSE){
+    else if(t.compLex == FALSE){
         match(FALSE);
     }
-    else if(t.pe->compLex == A_NULL){
+    else if(t.compLex == A_NULL){
         match(A_NULL);
     }
     check_input(siguiente,primero);
-
 }
 
 
-
-/***** M A I N ******/
 int main (int argc,char* args[]){
-    // inicializar analizador lexico
-	initTabla();
+    initTabla();
 	initTablaSimbolos();
-
-    if(argc > 1)
-    {
-        if (!(archivo=fopen(args[1],"rt")))
-        {
+    if(argc > 1){
+        if (!(archivo=fopen(args[1],"rt"))){
             printf("Archivo no encontrado.\n");
             exit(1);
         }
         getToken();
         json();
-        if(accept) printf("Sintacticamente correcto \n");
+        if(accept){
+            printf("Correctamente sintactico \n");
+        }
         fclose(archivo);
     }else{
         printf("Debe pasar como parametro el path al archivo fuente.\n");
         exit(1);
     }
-
     return 0;
 }
