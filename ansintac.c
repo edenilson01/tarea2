@@ -9,6 +9,7 @@
 
 
 #include "anlex.c"
+
 //Prototipos de funciones
 void element(int[]);
 void array(int[]);
@@ -84,8 +85,7 @@ void element(int syncset[]){
     check_input(primero,syncset);
     if(t.compLex == '{'){
         object(siguiente);
-    }
-    else if(t.compLex == '['){
+    }else if(t.compLex == '['){
         array(siguiente);
     }
     check_input(siguiente,primero);
@@ -118,6 +118,7 @@ void arrayA(int syncset[]){
     }
     check_input(siguiente,primero);
 }
+
 
 //element-list -> element element-listA
 void element_list(int syncset[]){
@@ -220,6 +221,7 @@ void attribute(int syncset[]){
     check_input(siguiente,primero);
 }
 
+
 //attribute-name -> STRING
 void attribute_name(int syncset[]){
     int primero[]={STRING,'\0'};
@@ -239,20 +241,15 @@ void attribute_value(int syncset[]){
     check_input(primero,syncset);
     if(t.compLex == '{' || t.compLex == '['){
         element(siguiente);
-    }
-    else if(t.compLex == STRING){
+    }else if(t.compLex == STRING){
         match(STRING);
-    }
-    else if(t.compLex == NUM){
+    }else if(t.compLex == NUM){
         match(NUM);
-    }
-    else if(t.compLex == TRUE){
+    }else if(t.compLex == TRUE){
         match(TRUE);
-    }
-    else if(t.compLex == FALSE){
+    }else if(t.compLex == FALSE){
         match(FALSE);
-    }
-    else if(t.compLex == A_NULL){
+    }else if(t.compLex == A_NULL){
         match(A_NULL);
     }
     check_input(siguiente,primero);

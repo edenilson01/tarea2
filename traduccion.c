@@ -1,9 +1,16 @@
+/*
+ *	Traduccion Dirigida por Sintaxis
+ *	Curso: Compiladores y Lenguajes de Bajo de Nivel
+ *
+ *	Descripcion: 
+ *     Implementar un traductor para el lenguaje Json simplificado
+ *
+*/
 #include "ansintac.c"
 
 FILE *output;	  //archivo de salida
 int espacios = 0; //espacios para lograr el formato de salida deseado
 
-void json_trad();
 void element_trad();
 void array_trad();
 void arrayA_trad();
@@ -18,6 +25,14 @@ void attribute_name_trad();
 void attribute_value_trad();
 
 
+void imprimir_esp(){
+    int i=0;
+    for (i=1;i<=espacios;i++){
+        fprintf(output," ");
+    }
+}
+
+
 //string sin comillas
 void string_trad(char* cadena){
     char string[TAMLEX];
@@ -29,17 +44,12 @@ void string_trad(char* cadena){
     }
 }
 
-void imprimir_esp(){
-    int i=0;
-    for (i=1;i<=espacios;i++){
-        fprintf(output," ");
-    }
-}
 
 //json_trad -> element_trad EOF 
 void json_trad(){
     element_trad();
 }
+
 
 //element_trad -> object_trad | array_trad
 void element_trad(){
@@ -47,8 +57,7 @@ void element_trad(){
         object_trad();
     }else if(t.compLex == '['){
         array_trad();
-    }
-    
+    }  
 }
 
 
@@ -80,6 +89,7 @@ void arrayA_trad(){
     }
 }
 
+
 //element-list_trad -> element_trad element-listA_trad
 void element_list_trad(){
     if(t.compLex == '{' || t.compLex == '['){
@@ -94,6 +104,7 @@ void element_listA_trad(){
     if(t.compLex == ']'){ 
         return;
     }
+
     if(t.compLex == ','){  
         match(',');
         imprimir_esp();
@@ -116,6 +127,7 @@ void object_trad(){
 
 }
 
+
 //objectA_trad -> attributes-list_trad } | }
 void objectA_trad(){
     if(t.compLex == STRING){
@@ -127,6 +139,7 @@ void objectA_trad(){
     }
 }
 
+
 //attributes-list_trad -> attribute_trad attributes-listA_trad
 void attributes_list_trad(){
     if(t.compLex == STRING){
@@ -135,18 +148,21 @@ void attributes_list_trad(){
     }
 }
 
+
 //attributes-listA_trad -> ,attribute_trad attributes-listA_trad | ε
 void attributes_listA_trad(){
     if (t.compLex == '}'){
         espacios-=4;
         return;
     }
+
     if(t.compLex == ','){
         match(',');
         attribute_trad();
         attributes_listA_trad();
     }
 }
+
 
 //attribute_trad -> attribute-name_trad : attribute-value_trad
 void attribute_trad(){
@@ -165,6 +181,7 @@ void attribute_trad(){
     }
 }
 
+
 //attribute-name_trad -> string_trad
 void attribute_name_trad(){
     if(t.compLex == STRING){    
@@ -172,6 +189,7 @@ void attribute_name_trad(){
         match(STRING);
     }
 }
+
 
 //attribute-value_trad -> element_trad | STRING | NUMBER | TRUE | FALSE | NULL
 void attribute_value_trad(){
@@ -213,6 +231,7 @@ int main (int argc,char* args[]){
             archivo=fopen(args[1],"rt");
             getToken();
             json_trad();
+            printf("Archivo xml generado bajo el nombre de \"output.xml\"\n");
         }
     }else{
         printf("Debe pasar como parametro el path al archivo fuente.\n");

@@ -33,17 +33,16 @@ void error(const char* mensaje){
 }
 
 void getToken(){
-	int i=0;
-	char c=0;
-	int acepto=0;
-	int estado=0;
+	int i = 0;
+	char c = 0;
+	int acepto = 0;
+	int estado = 0;
 	char msg[41];
 	entrada e;
 
 	while((c=fgetc(archivo))!=EOF){	
 		if (c==' ' || c=='\t'){
 			continue;
-
 		}else if(c=='\n'){
 			numLinea++;
 		}else if (tolower(c)=='t' || tolower(c)=='f' || tolower(c)=='n'){
@@ -213,8 +212,7 @@ void getToken(){
 			t.compLex=']';
 			t.pe=buscar("]");
 			break;
-		}
-		else if (c=='\"'){ 
+		}else if (c=='\"'){ 
 			//un caracter o una cadena de caracteres
 			i=0;
 			lexema[i]=c;
@@ -252,6 +250,7 @@ void getToken(){
 			}else{
 				c=0;
 			}
+			
 			if (c==0){
 				t.compLex=EOF;
 				t.pe=NULL;
@@ -280,7 +279,9 @@ void getToken(){
 			sprintf(msg,"%c no esperado",c);
 			error(msg);
 		}
-	}if (c==EOF){
+	}
+	
+	if (c==EOF){
 		t.compLex=EOF;
 		t.pe=NULL;
 	}	
