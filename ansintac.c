@@ -22,7 +22,7 @@ void attributes_listA(int[]);
 void attribute(int[]);
 void attribute_name(int[]);
 void attribute_value(int[]);
-int accept=1;
+
 
 
 void match(int expectedToken){
@@ -32,7 +32,7 @@ void match(int expectedToken){
 }
 
 void error_sint(int sincronizacion []){
-    accept=0;
+    correcto = 0;
    	printf("Error sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
 	int i = 0;
     while(t.compLex != sincronizacion[i] && t.compLex != EOF){   
@@ -270,7 +270,7 @@ int main (int argc,char* args[]){
         }
         getToken();
         json();
-        if(accept){
+        if(correcto){
             printf("Correctamente sintactico \n");
         }
         fclose(archivo);

@@ -11,7 +11,6 @@
 /*********** Inclusion de cabecera **************/
 #include "anlex.h"
 
-
 /************* Variables globales **************/
 
 token t;				// token global para recibir componentes del Analizador Lexico
@@ -22,16 +21,15 @@ FILE *archivo;			// Fuente Json
 char lexema[TAMLEX];	// Utilizado por el analizador lexico
 
 int numLinea = 1;			// Numero de Linea
-
+int correcto = 1;
 /**************** Funciones **********************/
 
 
 // Rutinas del analizador lexico
 
 void error(const char* mensaje){
-	//fprintf(output, "Linea %d: Error. %s.\n",numLinea,mensaje);	
-	//printf("Error sintactico en linea: %d. No se esperaba %s.\n",numLinea,t.pe->componente);
-	printf("Linea %d: Error. %s.\n",numLinea,mensaje);	
+	printf("Linea %d: Error. %s.\n",numLinea,mensaje);
+	correcto = 0;
 }
 
 void getToken(){
