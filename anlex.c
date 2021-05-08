@@ -25,7 +25,7 @@ int correcto = 1;
 /**************** Funciones **********************/
 
 
-// Rutinas del analizador lexico
+//funciones del analizador lexico
 
 void error(const char* mensaje){
 	printf("Linea %d: Error. %s.\n",numLinea,mensaje);

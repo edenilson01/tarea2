@@ -24,7 +24,7 @@ void attribute_name(int[]);
 void attribute_value(int[]);
 
 
-
+//funciones del analizador sintactico
 void match(int expectedToken){
     if(t.compLex == expectedToken){
         getToken();
@@ -105,7 +105,7 @@ void array(int syncset[]){
 }
 
 
-//array' -> element-list ] | ]
+//arrayA -> element-list ] | ]
 void arrayA(int syncset[]){
     int primero[]={'{','[',']','\0'};
     int siguiente[] = {'[',',',']','}', '\0'};
@@ -113,8 +113,7 @@ void arrayA(int syncset[]){
     if(t.compLex == '{' || t.compLex == '['){
         element_list(siguiente);
         match(']');
-    }
-    else if(t.compLex == ']'){
+    }else if(t.compLex == ']'){
         match(']');
     }
     check_input(siguiente,primero);
@@ -133,7 +132,7 @@ void element_list(int syncset[]){
 }
 
 
-//element-list' ->  ,element element-list' | ε
+//element-listA ->  ,element element-listA | ε
 void element_listA(int syncset[]){
     if(t.compLex == ']'){ 
         return;
@@ -163,7 +162,7 @@ void object(int syncset[]){
 }
 
 
-//object' -> attributes-list} | }
+//objectA -> attributes-list } | }
 void objectA(int syncset[]){
     int primero[]={STRING,'}','\0'};
     int siguiente[] = {'{',',',']','}','\0'};
@@ -191,7 +190,7 @@ void attributes_list(int syncset[]){
 }
 
 
-//attributes-list' -> ,attribute attributes-listA | ε
+//attributes-listA -> ,attribute attributes-listA | ε
 void attributes_listA(int syncset[]){
     if (t.compLex == '}'){
         return;
@@ -221,7 +220,7 @@ void attribute(int syncset[]){
     check_input(siguiente,primero);
 }
 
-//attribute-name -> string
+//attribute-name -> STRING
 void attribute_name(int syncset[]){
     int primero[]={STRING,'\0'};
     int siguiente[] = {':', '\0'};
@@ -259,7 +258,7 @@ void attribute_value(int syncset[]){
     check_input(siguiente,primero);
 }
 
-
+/*
 int main (int argc,char* args[]){
     initTabla();
 	initTablaSimbolos();
@@ -280,3 +279,4 @@ int main (int argc,char* args[]){
     }
     return 0;
 }
+*/
