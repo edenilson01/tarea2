@@ -42,13 +42,9 @@ void getToken(){
 
 	while((c=fgetc(archivo))!=EOF){	
 		if (c==' ' || c=='\t'){
-			//fprintf(output,"%c", c);
-			//printf("%c", c);	
 			continue;
 
 		}else if(c=='\n'){
-			//fprintf(output, "%c", c);
-			//printf("%c", c);	
 			numLinea++;
 		}else if (tolower(c)=='t' || tolower(c)=='f' || tolower(c)=='n'){
 			//es un boolean o null
